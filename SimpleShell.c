@@ -26,6 +26,8 @@ int main(void) {
 
     while (should_run) {
         char *command = (char *) (malloc(MAX_LINE * sizeof(char)));
+        int num_args = 0;
+        int daemon = 0;
         printf("osh > ");
         fgets(command, MAX_LINE, stdin);
         command[strlen(command) - 1] = '\0';
@@ -35,7 +37,14 @@ int main(void) {
         int i;
         for (i = 0, p = strtok(command, " "); p && (i < MAX_LINE); p = strtok(NULL, " ")) {
             args[i] = p;
+            num_args++;
             i++;
+        }
+
+        // Check the ampersand &
+        if (strcmp(args[num_args - 1], "&") == 0) {
+            daemon = 1;
+            args[num_args - 1] = NULL;
         }
 
         // Check the legality of the command
@@ -58,7 +67,10 @@ int main(void) {
                     printf("%d %s\n", i, history.commands[i - 1]);
             }
         }
-        waitpid(new_pid, NULL, 0);
+
+        // Check whether the shell need to wait
+        if (daemon == 0)
+            waitpid(new_pid, NULL, 0);
 
         // Store this command to history
         if (history.count != HISTORY_SIZE) {
