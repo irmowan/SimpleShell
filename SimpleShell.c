@@ -130,7 +130,7 @@ int divide_command(char *command, char *args[]) {
         count++;
         i++;
     }
-    for (; i < MAX_LINE; ++i) args[i] = NULL;
+    for (; i < MAX_LINE / 2 + 1; ++i) args[i] = NULL;
     return count;
 }
 
