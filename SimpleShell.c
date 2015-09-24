@@ -16,6 +16,8 @@ struct HistoryCommands {
     char *commands[HISTORY_SIZE];
 };
 
+int check_command(char *command, struct HistoryCommands *history);
+
 void copy_command(char *command, struct HistoryCommands *history, int k);
 
 int divide_command(char *command, char *args[]);
@@ -43,39 +45,7 @@ int main(void) {
             break;
         }
 
-        char *args_temp[MAX_LINE / 2 + 1];
-        char *command_temp = (char *) (malloc(MAX_LINE * sizeof(char)));
-        strcpy(command_temp, command);
-        num_args = divide_command(command_temp, args_temp);
-        if (args_temp[0][0] == '!') {
-            if (num_args > 1) {
-                printf("Event not found.\n");
-                continue;
-            }
-            if (strcmp(args_temp[0], "!!") == 0) {
-                if (history.count == 0) {
-                    printf("No history commands yet.\n");
-                    continue;
-                }
-                else
-                    copy_command(command, &history, history.count);
-            }
-            else {
-                char *num_char = (char *) (malloc(MAX_LINE * sizeof(char)));
-                int num;
-                if (strcmp(args_temp[0], "!") == 0) {
-                    printf("Event not found.\n");
-                    continue;
-                }
-                strcpy(num_char, args_temp[0] + 1);
-                num = atoi(num_char);   // It will return 0 when the parameter is not a number
-                if (num <= 0 || num > history.count) {
-                    printf("Event not found.\n");
-                    continue;
-                }
-                copy_command(command, &history, num);
-            }
-        }
+        if (check_command(command, &history) == 1) continue;
 
         store_command(command, &history);
         num_args = divide_command(command, args);
@@ -111,6 +81,44 @@ int main(void) {
         // Check whether the shell need to wait
         if (daemon == 0)
             waitpid(new_pid, NULL, 0);
+    }
+    return 0;
+}
+
+int check_command(char *command, struct HistoryCommands *history) {
+    char *args_temp[MAX_LINE / 2 + 1];
+    char *command_temp = (char *) (malloc(MAX_LINE * sizeof(char)));
+    int num_args = 0;
+    strcpy(command_temp, command);
+    num_args = divide_command(command_temp, args_temp);
+    if (args_temp[0][0] == '!') {
+        if (num_args > 1) {
+            printf("Event not found.\n");
+            return 1;
+        }
+        if (strcmp(args_temp[0], "!!") == 0) {
+            if (history->count == 0) {
+                printf("No history commands yet.\n");
+                return 1;
+            }
+            else
+                copy_command(command, history, history->count);
+        }
+        else {
+            char *num_char = (char *) (malloc(MAX_LINE * sizeof(char)));
+            int num = 0;
+            if (strcmp(args_temp[0], "!") == 0) {
+                printf("Event not found.\n");
+                return 1;
+            }
+            strcpy(num_char, args_temp[0] + 1);
+            num = atoi(num_char);   // It will return 0 when the parameter is not a number
+            if (num <= 0 || num > history->count) {
+                printf("Event not found.\n");
+                return 1;
+            }
+            copy_command(command, history, num);
+        }
     }
     return 0;
 }
