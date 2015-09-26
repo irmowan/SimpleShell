@@ -59,30 +59,26 @@ int main(void) {
             num_args--;
         }
 
-        // Check the legality of the command
-        struct stat *buf = (struct stat *) malloc(sizeof(struct stat *));
-        if (stat(args[0], buf) == 0) {
-            printf("%s : Command not found.\n", args[0]);
+        // Implement cd command, this doesn't need to create a child process
+        if (strcmp(args[0], "cd") == 0) {
+            cd_command(args, num_args);
+            continue;
+        }
+
+        // Implement history command, this also doesn't need to create a child process
+        if (strcmp(args[0], "history") == 0) {
+            for (int i = history.count; i > 0; i--)
+                printf("%d %s\n", i, history.commands[i - 1]);
             continue;
         }
 
         // Create a new process to execute the command
         pid_t new_pid = fork();
         if (new_pid == 0) {
-            if (strcmp(args[0], "cd") == 0) {
-                // Complete cd command
-                cd_command(args, num_args);
-                continue;
-            }
+            // Implement the child process
             execvp(args[0], args);
-            if (strcmp(args[0], "history") != 0) {
-                printf("%s : Command not found.\n", args[0]);
-            }
-            else {
-                // Complement history command
-                for (int i = history.count; i > 0; i--)
-                    printf("%d %s\n", i, history.commands[i - 1]);
-            }
+            printf("%s : Command not found.\n", args[0]);
+            exit(0);
         }
 
         // Check whether the shell need to wait
