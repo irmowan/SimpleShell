@@ -54,7 +54,7 @@ int main(void) {
         if (strcmp(args[num_args - 1], "&") == 0) {
             daemon = 1;
             args[num_args - 1] = NULL;
-            //num_args--;
+            num_args--;
         }
 
         // Check the legality of the command
@@ -67,6 +67,15 @@ int main(void) {
         // Create a new process to execute the command
         pid_t new_pid = fork();
         if (new_pid == 0) {
+            if (strcmp(args[0], "cd") == 0) {
+                if (num_args == 1) {
+                    printf("No argument for command cd.\n");
+                    continue;
+                }
+                if (chdir(args[1]) == -1)
+                    printf("%s : No such file or directory.\n", args[1]);
+                continue;
+            }
             execvp(args[0], args);
             if (strcmp(args[0], "history") != 0) {
                 printf("%s : Command not found.\n", args[0]);
