@@ -121,6 +121,7 @@ int check_command(char *command, struct HistoryCommands *history) {
     int num_args = 0;
     strcpy(command_temp, command);
     num_args = divide_command(command_temp, args_temp);
+    if (num_args == 0) return 1;       // Handle the case of the all-space command
     if (args_temp[0][0] == '!') {
         if (num_args > 1) {
             printf("Event not found.\n");
