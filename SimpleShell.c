@@ -72,8 +72,15 @@ int main(void) {
                     printf("No argument for command cd.\n");
                     continue;
                 }
-                if (chdir(args[1]) == -1)
+                if (strcmp(args[1], "~") == 0 || strcmp(args[1], ";") == 0) {
+                    chdir(getenv("HOME"));
+                    continue;
+                }
+                // Run the normal cd command
+                if (chdir(args[1]) == -1) {
                     printf("%s : No such file or directory.\n", args[1]);
+                    continue;
+                }
                 continue;
             }
             execvp(args[0], args);
