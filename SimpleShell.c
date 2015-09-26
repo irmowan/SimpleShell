@@ -57,8 +57,11 @@ int main(void) {
             num_args--;
         }
 
-        // Exit the shell
-        if (strcmp(args[0], "exit") == 0) break;
+        // Implement exit command, by changing the variable 'should_run'
+        if (strcmp(args[0], "exit") == 0) {
+            should_run = 0;
+            continue;
+        }
 
         // Implement cd command, this doesn't need to create a child process
         if (strcmp(args[0], "cd") == 0) {
