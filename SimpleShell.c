@@ -41,14 +41,12 @@ int main(void) {
         fgets(command, MAX_LINE, stdin);
         command[strlen(command) - 1] = '\0';
 
-        // Exit the shell
         if (strlen(command) == 0) continue;
-        if (strcmp(command, "exit") == 0) {
-            break;
-        }
 
+        // Check if the command is !!/!N
         if (check_command(command, &history) == 1) continue;
 
+        // Store the command to history, then divide the command to args[]
         store_command(command, &history);
         num_args = divide_command(command, args);
 
@@ -58,6 +56,9 @@ int main(void) {
             args[num_args - 1] = NULL;
             num_args--;
         }
+
+        // Exit the shell
+        if (strcmp(args[0], "exit") == 0) break;
 
         // Implement cd command, this doesn't need to create a child process
         if (strcmp(args[0], "cd") == 0) {
@@ -90,23 +91,27 @@ int main(void) {
 
 void cd_command(char *args[], int num_args) {
     char *path = args[1];
+    char *home = (char *) malloc(MAX_LINE * sizeof(char));
+    strcpy(home, getenv("HOME"));
+    // Implement default cd command
     if (num_args == 1) {
-        chdir(getenv("HOME"));
+        chdir(home);
         return;
     }
+    // Implement HOME parameter
     if (args[1][0] == '~') {
-        if (strlen(args[1]) == 1 || (strlen(args[1]) == 2 && args[1][1] == '/')) {
-            chdir(getenv("HOME"));
+        if ((strlen(args[1]) == 1) || (strlen(args[1]) == 2 && args[1][1] == '/')) {
+            chdir(home);
             return;
         }
+        // Joint a primitive path
         if (strlen(args[1]) > 2 && args[1][1] == '/') {
-            path = strcat(strcat(getenv("HOME"), "/"), args[1] + 2);
+            path = strcat(strcat(home, "/"), args[1] + 2);
         }
     }
     // Run the normal cd command
     if (chdir(path) == -1) {
         printf("%s : No such file or directory.\n", args[1]);
-        return;
     }
     return;
 }
@@ -120,12 +125,12 @@ int check_command(char *command, struct HistoryCommands *history) {
     if (num_args == 0) return 1;       // Handle the case of the all-space command
     if (args_temp[0][0] == '!') {
         if (num_args > 1) {
-            printf("Event not found.\n");
+            printf("Please use only one parameter.\n");
             return 1;
         }
         if (strcmp(args_temp[0], "!!") == 0) {
             if (history->count == 0) {
-                printf("No history commands yet.\n");
+                printf("No commands in history.\n");
                 return 1;
             }
             else
@@ -141,7 +146,7 @@ int check_command(char *command, struct HistoryCommands *history) {
             strcpy(num_char, args_temp[0] + 1);
             num = atoi(num_char);   // It will return 0 when the parameter is not a number
             if (num <= 0 || num > history->count) {
-                printf("Event not found.\n");
+                printf("No such command in history.\n");
                 return 1;
             }
             copy_command(command, history, num);
@@ -153,12 +158,15 @@ int check_command(char *command, struct HistoryCommands *history) {
 void copy_command(char *command, struct HistoryCommands *history, int k) {
     strcpy(command, history->commands[k - 1]);
     printf("%s\n", command);
+    return;
 }
 
 int divide_command(char *command, char *args[]) {
     int count = 0;
     char *p;
     int i;
+    // This token logic divide the command by space
+    // It will not useful when the space is in the quotation mark
     for (i = 0, p = strtok(command, " "); p && (i < MAX_LINE); p = strtok(NULL, " ")) {
         args[i] = (char *) (malloc(MAX_LINE * sizeof(char)));
         strcpy(args[i], p);
@@ -175,8 +183,10 @@ void store_command(char *command, struct HistoryCommands *history) {
         strcpy(history->commands[history->count++], command);
     }
     else {
+        // Remove old history command to store the new one
         for (int i = 0; i < HISTORY_SIZE - 1; ++i)
             strcpy(history->commands[i], history->commands[i + 1]);
         strcpy(history->commands[HISTORY_SIZE - 1], command);
     }
+    return;
 }
