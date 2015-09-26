@@ -68,16 +68,22 @@ int main(void) {
         pid_t new_pid = fork();
         if (new_pid == 0) {
             if (strcmp(args[0], "cd") == 0) {
+                char *path = args[1];
                 if (num_args == 1) {
-                    printf("No argument for command cd.\n");
-                    continue;
-                }
-                if (strcmp(args[1], "~") == 0 || strcmp(args[1], ";") == 0) {
                     chdir(getenv("HOME"));
                     continue;
                 }
+                if (args[1][0] == '~') {
+                    if (strlen(args[1]) == 1 || (strlen(args[1]) == 2 && args[1][1] == '/')) {
+                        chdir(getenv("HOME"));
+                        continue;
+                    }
+                    if (strlen(args[1]) > 2 && args[1][1] == '/') {
+                        path = strcat(strcat(getenv("HOME"), "/"), args[1] + 2);
+                    }
+                }
                 // Run the normal cd command
-                if (chdir(args[1]) == -1) {
+                if (chdir(path) == -1) {
                     printf("%s : No such file or directory.\n", args[1]);
                     continue;
                 }
