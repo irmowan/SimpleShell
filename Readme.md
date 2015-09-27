@@ -1,2 +1,48 @@
 # Simple Shell
 This is a simple shell implemented by C language, as a course project of Operating System.
+
+When you run the shell, you can see this prompt: 
+```
+Welcome to irmo's simple shell!
+```
+The shell provides these features as follows:
+
+- The shell parses the input command by spaces. It can tolerate spaces at the beginning or ending of the command, and more than one spaces between two parameters in the command. But it may not work when spaces appear in the quotation marks.
+- When you want to quit, you can use the command `exit`.
+- As the shell uses the system call `execvp`, most commands that can run in a practical shell also work in this simple shell.
+- The shell implements the command `history`, to show history commands. Moreover, you can use command `!!`, `!N`(here N is an integer from 1 to 10), the shell will search the given command in history, and then executes it.
+- In addition, the shell also realizes the command `cd`, and supports some special types of calling like `cd ~`, `cd /`, `cd ~/Documents`, `cd ../..`
+
+Here is a demo you can refer to:
+```shell
+Welcome to irmo's simple shell!
+osh >   ls
+CMakeLists.txt	Readme.md	SimpleShell	SimpleShell.c
+osh > ls  -m
+CMakeLists.txt, Readme.md, SimpleShell, SimpleShell.c
+osh >    cd ~
+osh > ls
+Applications	Downloads	Music		Public
+Desktop		Library		Pictures	PycharmProjects
+Documents	Movies		Projects	Sites
+osh > cd ~/Documents/OS/SimpleShell
+osh >  history
+6  history
+5 cd ~/Documents/OS/SimpleShell
+4 ls
+3    cd ~
+2 ls  -m
+1   ls
+osh >  !4
+ls
+CMakeLists.txt	Readme.md	SimpleShell	SimpleShell.c
+osh > !0
+No such command in history.
+osh > git branch
+* master
+osh > exit
+```
+
+---
+By Wan Yimu
+2015.9
