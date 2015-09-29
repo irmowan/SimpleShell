@@ -32,6 +32,7 @@ int main(void) {
     int should_run = 1;
     history.count = 0;
     printf("Welcome to irmo's simple shell!\n");
+    signal(SIGINT, NULL);
     while (should_run) {
         char *command = (char *) (malloc(MAX_LINE * sizeof(char)));
         int num_args = 0;
