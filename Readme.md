@@ -50,5 +50,5 @@ osh > exit
 Have fun with the shell!
 
 ---
-Wan Yimu  
+Irmo 
 2015.9
